@@ -91,7 +91,10 @@ html, body {
 .brand-logo-img {
   width: 32px;
   height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
 .brand-text {
@@ -618,10 +621,13 @@ html, body {
 }
 
 .welcome-logo-img {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  object-fit: cover;
   position: relative;
   z-index: 2;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.35);
   filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.4));
   animation: floatUpDown 4s ease-in-out infinite;
 }
@@ -744,11 +750,14 @@ html, body {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-medium);
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+  overflow: hidden;
+  padding: 0;
 }
 
 .message-avatar.assistant-avatar img {
-  width: 20px;
-  height: 20px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Message Content Box */

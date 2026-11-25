@@ -93,7 +93,7 @@ export class ChatController {
 
       row.innerHTML = `
         <div class="message-avatar assistant-avatar" title="NexoAI">
-          <img src="assets/logo.svg" alt="NexoAI">
+          <img src="assets/logo.png" alt="NexoAI">
         </div>
         <div class="message-body-wrapper">
           <div class="message-bubble">
@@ -158,7 +158,7 @@ export class ChatController {
 
       row.innerHTML = `
         <div class="message-avatar assistant-avatar" title="NexoAI">
-          <img src="assets/logo.svg" alt="NexoAI">
+          <img src="assets/logo.png" alt="NexoAI">
         </div>
         <div class="message-body-wrapper">
           <div class="message-bubble markdown-body">${renderedContent}</div>
@@ -570,7 +570,7 @@ export class ChatController {
     const formattedTime = UIController.formatTimestamp(assistantMsg.timestamp);
     row.innerHTML = `
       <div class="message-avatar assistant-avatar" title="NexoAI">
-        <img src="assets/logo.svg" alt="NexoAI">
+        <img src="assets/logo.png" alt="NexoAI">
       </div>
       <div class="message-body-wrapper">
         <div class="message-bubble">
