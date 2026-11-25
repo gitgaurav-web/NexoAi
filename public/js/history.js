@@ -190,6 +190,11 @@ export class ChatHistoryManager {
       id: message.id || ('msg_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6)),
       role: message.role || 'user',
       content: message.content || '',
+      type: message.type || 'text',
+      imageUrl: message.imageUrl || null,
+      aspectRatio: message.aspectRatio || null,
+      provider: message.provider || null,
+      prompt: message.prompt || null,
       timestamp: message.timestamp || new Date().toISOString(),
       reaction: message.reaction || null
     };

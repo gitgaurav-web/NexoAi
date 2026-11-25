@@ -27,13 +27,22 @@ Built cleanly with vanilla HTML5, CSS3, and ES6+ JavaScript on the frontend (no 
 - **Multi-Turn Context:** Retains multi-turn conversation memory with configurable turn limits to balance speed and context depth.
 - **Professional System Persona:** Pre-configured persona for accurate, well-structured answers with code fences, admitting uncertainty honestly and clarifying text-only capabilities.
 
-### 3. Rich Markdown & Syntax-Highlighted Code Cards
+### 3. AI Image Generation (FLUX.1 Diffusion Engine)
+- **High-Definition Synthesis:** Create photorealistic images and digital artwork directly from text prompts using the FLUX.1 diffusion engine.
+- **Dedicated Image Mode Bar:** Toggle Image Mode with the floating 🖼️ button or `Alt + I` shortcut.
+- **Aspect Ratio Controls:** 1-click pills for Square (`1:1`), Landscape (`16:9`), and Portrait (`9:16`).
+- **Art Style Presets:** Cinematic, Photorealistic, Anime / Manga, Digital Art, Cyberpunk, and Minimalist.
+- **Smart Intent Detection:** Automatically routes `/image <prompt>` and `generate an image of ...` to the diffusion engine.
+- **Interactive Image Cards:** Shimmer skeleton loading state, provider metadata badge, Zoom (Fullscreen Lightbox preview), and 1-click HD Download.
+- **Chat History Persistence:** All generated images are persisted with metadata in LocalStorage.
+
+### 4. Rich Markdown & Syntax-Highlighted Code Cards
 - **Dark Code-Card Interface:** Formats fenced Markdown code into sleek dark cards with language identification labels (Python, JavaScript, TypeScript, HTML, CSS, C++, Java, SQL, PHP, JSON, Bash, Go, Rust, etc.).
 - **One-Click Code Copy:** Dedicated "Copy Code" button with temporary checkmark and toast feedback.
 - **XSS Security:** Strict HTML entity escaping and URL scheme sanitization to prevent arbitrary HTML or script injection from model outputs.
 - **Markdown Support:** Headings, blockquotes, bold/italic/strikethrough text, ordered/unordered lists, markdown tables, and safe external links (`target="_blank" rel="noopener noreferrer"`).
 
-### 4. Robust Multi-Chat Management (LocalStorage)
+### 5. Robust Multi-Chat Management (LocalStorage)
 - **Automatic Titling:** Generates concise titles based on your initial message.
 - **Chronological Grouping:** Chats organized into **Pinned**, **Today**, **Yesterday**, **Previous 7 Days**, and **Older**.
 - **Per-Chat Actions:** Pin/Unpin, Rename, Export, and Delete with custom modal confirmations.
@@ -41,11 +50,12 @@ Built cleanly with vanilla HTML5, CSS3, and ES6+ JavaScript on the frontend (no 
 - **Export & Import:** Export individual conversations as TXT or JSON, or download full chat archives. Import previously exported JSON conversations with schema validation.
 - **Automatic Pruning:** Automatically prunes empty (0-message) chats on session load.
 
-### 5. Customization & Polish
+### 6. Customization & Polish
 - **Theme Switcher:** Dark Mode (Obsidian/Slate), Light Mode, and System Default (adapts to OS preferences).
 - **Keyboard Shortcuts:**
   - `Enter` -> Send message
   - `Shift + Enter` -> Add new line
+  - `Alt + I` -> Toggle Image Generation Mode
   - `Ctrl + K` or `Cmd + K` -> Start New Chat
   - `Ctrl + B` or `Cmd + B` -> Toggle Sidebar
   - `Ctrl + /` or `Cmd + /` -> Open Shortcuts Cheat Sheet
@@ -79,11 +89,23 @@ nexo-ai/
 │
 ├── server/                     # Backend server logic
 │   ├── routes/
-│   │   └── chat.js             # SSE streaming route & status check (/api/chat)
+│   │   ├── chat.js             # SSE streaming route & status check (/api/chat)
+│   │   └── image.js            # AI image generation route (/api/image/generate)
 │   ├── services/
-│   │   └── gemini.js           # Google Gen AI SDK integration & message normalization
+│   │   ├── gemini.js           # Google Gen AI SDK integration & message normalization
+│   │   └── image.js            # FLUX.1 diffusion synthesis service
 │   └── middleware/
-│       └── rateLimit.js        # Sliding-window IP rate limiting
+│       ├── rateLimit.js        # Sliding-window IP rate limiting
+│       ├── validateChat.js     # Chat request validation schema
+│       └── validateImage.js    # Image request validation schema
+│
+├── test/                       # Node.js native test suites
+│   ├── history.test.js         # Chat history manager unit tests
+│   ├── markdown.test.js        # Markdown & XSS sanitizer tests
+│   ├── rateLimit.test.js       # Rate limiter middleware tests
+│   ├── sse.test.js             # SSE stream parser & error handling tests
+│   ├── validateChat.test.js    # Chat request validation tests
+│   └── image.test.js           # Image generation validation & service tests
 │
 ├── .env.example                # Environment variable template
 ├── .gitignore                  # Git ignore rules

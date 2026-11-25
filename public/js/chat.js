@@ -15,6 +15,13 @@ export class ChatController {
     this.activeAbortController = null;
     this.isStreaming = false;
 
+    // Image generation state
+    this.isImageMode = false;
+    this.selectedAspectRatio = '1:1';
+    this.selectedImageStyle = 'cinematic';
+    this.isGeneratingImage = false;
+    this.imageAbortController = null;
+
     // Typewriter buffer state
     this.tokenQueue = [];
     this.typewriterTimer = null;
@@ -78,6 +85,72 @@ export class ChatController {
         </div>
         <div class="message-avatar user-avatar" title="You">U</div>
       `;
+    } else if (message.type === 'image') {
+      const isLiked = message.reaction === 'like';
+      const isDisliked = message.reaction === 'dislike';
+      const safePrompt = MarkdownRenderer.escapeHtml(message.prompt || 'Generated AI Image');
+      const safeImageUrl = message.imageUrl ? MarkdownRenderer.escapeHtml(message.imageUrl) : '';
+
+      row.innerHTML = `
+        <div class="message-avatar assistant-avatar" title="NexoAI">
+          <img src="assets/logo.svg" alt="NexoAI">
+        </div>
+        <div class="message-body-wrapper">
+          <div class="message-bubble">
+            <div class="ai-image-card">
+              <img src="${safeImageUrl}" alt="${safePrompt}" data-prompt="${safePrompt}" data-src="${safeImageUrl}" class="chat-generated-image" loading="lazy">
+              <div class="image-card-footer">
+                <div class="image-card-meta">
+                  <span class="image-card-badge">${message.provider || 'FLUX.1 Diffusion'}</span>
+                  <span>${message.aspectRatio || '1:1'}</span>
+                </div>
+                <div class="image-card-actions">
+                  <button class="msg-action-btn view-image-btn" title="View Fullscreen" data-src="${safeImageUrl}" data-prompt="${safePrompt}">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <polyline points="9 21 3 21 3 15"></polyline>
+                      <line x1="21" y1="3" x2="14" y2="10"></line>
+                      <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                    <span>Zoom</span>
+                  </button>
+                  <button class="msg-action-btn download-image-btn" title="Download Image" data-src="${safeImageUrl}" data-prompt="${safePrompt}">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Download</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="message-footer">
+            <span class="message-time">${formattedTime}</span>
+            <div class="message-actions-bar">
+              <button class="msg-action-btn download-image-btn" title="Download Image" data-src="${safeImageUrl}" data-prompt="${safePrompt}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>HD</span>
+              </button>
+              <button class="msg-action-btn like-btn ${isLiked ? 'active' : ''}" title="Helpful response" data-msg-id="${message.id}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                </svg>
+              </button>
+              <button class="msg-action-btn dislike-btn ${isDisliked ? 'active' : ''}" title="Unhelpful response" data-msg-id="${message.id}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
     } else {
       const renderedContent = MarkdownRenderer.render(message.content, false);
       const isLiked = message.reaction === 'like';
@@ -127,14 +200,37 @@ export class ChatController {
   }
 
   /**
-   * Send a user message and initiate streaming response
+   * Send a user message and initiate streaming response (or image synthesis)
    */
   async sendMessage(customText = null) {
-    if (this.isStreaming) return;
+    if (this.isStreaming || this.isGeneratingImage) return;
 
     const rawText = customText !== null ? customText : this.ui.chatInput.value;
     const text = (rawText || '').trim();
     if (!text) return;
+
+    // Detect image generation command / mode
+    let isImageIntent = false;
+    let cleanImagePrompt = text;
+
+    if (this.isImageMode) {
+      isImageIntent = true;
+      cleanImagePrompt = text.replace(/^\/image\s*/i, '').trim();
+    } else if (/^\/image\s*/i.test(text)) {
+      isImageIntent = true;
+      cleanImagePrompt = text.replace(/^\/image\s*/i, '').trim();
+    } else if (/^(?:generate|create|draw|paint)\s+(?:an?\s+)?(?:image|picture|photo|illustration|art)\s+(?:of\s+)?/i.test(text)) {
+      isImageIntent = true;
+      cleanImagePrompt = text.replace(/^(?:generate|create|draw|paint)\s+(?:an?\s+)?(?:image|picture|photo|illustration|art)\s+(?:of\s+)?/i, '').trim();
+    }
+
+    if (isImageIntent) {
+      if (!cleanImagePrompt) {
+        this.ui.showToast('Please specify what image you want to generate', 'warning');
+        return;
+      }
+      return this.generateImage(cleanImagePrompt, text);
+    }
 
     // Clear input and reset height
     this.ui.chatInput.value = '';
@@ -400,11 +496,292 @@ export class ChatController {
   }
 
   /**
-   * Stop generation action
+   * Stop generation action (supports aborting both SSE streaming and Image synthesis)
    */
   stopGeneration() {
+    if (this.isGeneratingImage) {
+      if (this.imageAbortController) {
+        this.imageAbortController.abort();
+      }
+      this.isGeneratingImage = false;
+      this.ui.setGeneratingState(false);
+      this.ui.showToast('Image generation cancelled.', 'info', 2000);
+      return;
+    }
+
     if (this.activeAbortController) {
       this.activeAbortController.abort();
+    }
+  }
+
+  /**
+   * Generate AI Image using FLUX.1 Diffusion Engine
+   */
+  async generateImage(prompt, originalUserText = null) {
+    if (this.isStreaming || this.isGeneratingImage) return;
+
+    const cleanPrompt = (prompt || '').trim();
+    if (!cleanPrompt) {
+      this.ui.showToast('Please enter an image prompt', 'warning');
+      return;
+    }
+
+    const displayText = originalUserText || cleanPrompt;
+
+    // Clear input and reset height
+    this.ui.chatInput.value = '';
+    this.ui.resetInputHeight();
+    this.ui.updateCharCounter();
+    this.ui.updateSendButtonState();
+
+    // Get or create conversation
+    let activeId = this.history.getActiveChatId();
+    let conv = activeId ? this.history.getConversation(activeId) : null;
+    if (!conv) {
+      conv = this.history.createConversation();
+      activeId = conv.id;
+    }
+
+    this.ui.toggleWelcomeScreen(false);
+
+    // 1. Add user message
+    const userMsg = this.history.addMessage(activeId, {
+      role: 'user',
+      content: displayText
+    });
+    this.appendMessageToDOM(userMsg);
+    this.ui.setCurrentChatTitle(conv.title);
+    this.ui.scrollToBottom(true);
+
+    // 2. Prepare assistant placeholder message with shimmer skeleton
+    const assistantMsg = this.history.addMessage(activeId, {
+      role: 'assistant',
+      type: 'image',
+      content: '',
+      prompt: cleanPrompt,
+      aspectRatio: this.selectedAspectRatio || '1:1'
+    });
+
+    const row = document.createElement('div');
+    row.className = 'message-row assistant';
+    row.id = `msg-row-${assistantMsg.id}`;
+    row.setAttribute('data-msg-id', assistantMsg.id);
+
+    const formattedTime = UIController.formatTimestamp(assistantMsg.timestamp);
+    row.innerHTML = `
+      <div class="message-avatar assistant-avatar" title="NexoAI">
+        <img src="assets/logo.svg" alt="NexoAI">
+      </div>
+      <div class="message-body-wrapper">
+        <div class="message-bubble">
+          <div class="image-loading-card">
+            <div class="image-loading-spinner"></div>
+            <div>
+              <strong>Generating AI Artwork...</strong>
+              <div style="font-size: 11px; margin-top: 4px; opacity: 0.75;">Synthesizing via FLUX.1 Diffusion Engine (${this.selectedAspectRatio || '1:1'})</div>
+            </div>
+          </div>
+        </div>
+        <div class="message-footer">
+          <span class="message-time">${formattedTime}</span>
+        </div>
+      </div>
+    `;
+    this.ui.messagesInner.appendChild(row);
+    this.ui.scrollToBottom(true);
+
+    this.isGeneratingImage = true;
+    this.ui.setGeneratingState(true);
+    this.imageAbortController = new AbortController();
+
+    try {
+      const res = await fetch('/api/image/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: cleanPrompt,
+          aspectRatio: this.selectedAspectRatio || '1:1',
+          style: this.selectedImageStyle || 'cinematic'
+        }),
+        signal: this.imageAbortController.signal
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Failed to generate image (${res.status})`);
+      }
+
+      // Update message in history
+      this.history.updateMessage(activeId, assistantMsg.id, {
+        imageUrl: data.imageUrl,
+        aspectRatio: data.aspectRatio,
+        provider: data.provider,
+        prompt: cleanPrompt
+      });
+
+      // Replace placeholder with completed image card
+      const bubbleEl = row.querySelector('.message-bubble');
+      const safePrompt = MarkdownRenderer.escapeHtml(cleanPrompt);
+      const safeImg = MarkdownRenderer.escapeHtml(data.imageUrl);
+
+      if (bubbleEl) {
+        bubbleEl.innerHTML = `
+          <div class="ai-image-card">
+            <img src="${safeImg}" alt="${safePrompt}" data-prompt="${safePrompt}" data-src="${safeImg}" class="chat-generated-image" loading="lazy">
+            <div class="image-card-footer">
+              <div class="image-card-meta">
+                <span class="image-card-badge">${data.provider || 'FLUX.1 Diffusion'}</span>
+                <span>${data.aspectRatio || '1:1'}</span>
+              </div>
+              <div class="image-card-actions">
+                <button class="msg-action-btn view-image-btn" title="View Fullscreen" data-src="${safeImg}" data-prompt="${safePrompt}">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                  <span>Zoom</span>
+                </button>
+                <button class="msg-action-btn download-image-btn" title="Download Image" data-src="${safeImg}" data-prompt="${safePrompt}">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>Download</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Add actions to footer
+      const footer = row.querySelector('.message-footer');
+      if (footer) {
+        footer.innerHTML = `
+          <span class="message-time">${formattedTime}</span>
+          <div class="message-actions-bar">
+            <button class="msg-action-btn download-image-btn" title="Download Image" data-src="${safeImg}" data-prompt="${safePrompt}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>HD</span>
+            </button>
+            <button class="msg-action-btn like-btn" title="Helpful response" data-msg-id="${assistantMsg.id}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+              </svg>
+            </button>
+            <button class="msg-action-btn dislike-btn" title="Unhelpful response" data-msg-id="${assistantMsg.id}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+              </svg>
+            </button>
+          </div>
+        `;
+      }
+
+      this.ui.scrollToBottom(true);
+      this.ui.showToast('Image generated successfully!', 'success');
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        this.history.removeMessage(activeId, assistantMsg.id);
+        row.remove();
+        return;
+      }
+      console.error('Image generation error:', err);
+      const bubbleEl = row.querySelector('.message-bubble');
+      if (bubbleEl) {
+        bubbleEl.innerHTML = `
+          <div class="message-error-card">
+            <div class="error-title-row">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>Image Generation Failed</span>
+            </div>
+            <div class="error-message-text">${MarkdownRenderer.escapeHtml(err.message || 'Generation error')}</div>
+            <div>
+              <button class="msg-action-btn retry-btn retry-image-btn" data-prompt="${MarkdownRenderer.escapeHtml(cleanPrompt)}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                <span>Retry Image</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      this.history.removeMessage(activeId, assistantMsg.id);
+      this.ui.showToast(err.message || 'Image generation failed', 'error');
+    } finally {
+      this.isGeneratingImage = false;
+      this.imageAbortController = null;
+      this.ui.setGeneratingState(false);
+    }
+  }
+
+  /**
+   * Download AI generated image
+   */
+  downloadImage(dataUrl, filenamePrompt = 'ai-image') {
+    try {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      const cleanName = (filenamePrompt || 'ai-image')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .slice(0, 30) || 'nexo-art';
+      a.download = `nexoai-${cleanName}-${Date.now()}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      this.ui.showToast('Downloading image...', 'success', 2000);
+    } catch {
+      this.ui.showToast('Failed to download image', 'error');
+    }
+  }
+
+  /**
+   * Open Lightbox preview
+   */
+  openLightbox(src, prompt = '') {
+    const modal = document.getElementById('image-lightbox-modal');
+    const img = document.getElementById('lightbox-img');
+    const promptEl = document.getElementById('lightbox-prompt');
+    const downloadBtn = document.getElementById('lightbox-download-btn');
+
+    if (!modal || !img) return;
+
+    img.src = src;
+    img.alt = prompt || 'AI Generated Image';
+    if (promptEl) promptEl.textContent = prompt;
+
+    if (downloadBtn) {
+      downloadBtn.onclick = () => {
+        this.downloadImage(src, prompt);
+      };
+    }
+
+    modal.classList.add('active');
+  }
+
+  /**
+   * Close Lightbox preview
+   */
+  closeLightbox() {
+    const modal = document.getElementById('image-lightbox-modal');
+    if (modal) {
+      modal.classList.remove('active');
     }
   }
 
@@ -570,9 +947,39 @@ export class ChatController {
       }
 
       // 6. Retry button on error
-      const retryBtn = e.target.closest('.retry-btn');
+      const retryBtn = e.target.closest('.retry-btn:not(.retry-image-btn)');
       if (retryBtn) {
         this.retryLastResponse();
+        return;
+      }
+
+      // 7. Lightbox view image
+      const viewImageBtn = e.target.closest('.view-image-btn') || e.target.closest('.chat-generated-image');
+      if (viewImageBtn) {
+        const src = viewImageBtn.getAttribute('data-src') || viewImageBtn.src;
+        const prompt = viewImageBtn.getAttribute('data-prompt') || viewImageBtn.alt || '';
+        this.openLightbox(src, prompt);
+        return;
+      }
+
+      // 8. Download image button
+      const downloadBtn = e.target.closest('.download-image-btn');
+      if (downloadBtn) {
+        const src = downloadBtn.getAttribute('data-src');
+        const prompt = downloadBtn.getAttribute('data-prompt') || 'ai-image';
+        if (src) this.downloadImage(src, prompt);
+        return;
+      }
+
+      // 9. Retry image generation
+      const retryImgBtn = e.target.closest('.retry-image-btn');
+      if (retryImgBtn) {
+        const prompt = retryImgBtn.getAttribute('data-prompt');
+        if (prompt) {
+          const row = retryImgBtn.closest('.message-row');
+          if (row) row.remove();
+          this.generateImage(prompt);
+        }
         return;
       }
     });

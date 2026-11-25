@@ -1076,6 +1076,283 @@ html, body {
   user-select: none;
 }
 
+/* Image Generation Mode Controls */
+.input-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.input-action-btn:hover {
+  color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.input-action-btn.active {
+  color: #ffffff;
+  background: var(--accent-gradient);
+}
+
+.image-mode-bar {
+  pointer-events: auto;
+  width: 100%;
+  max-width: var(--input-max-width);
+  margin-bottom: 8px;
+  padding: 6px 14px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--accent-purple);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+  animation: slideInDown 0.2s ease-out;
+}
+
+.image-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-purple);
+}
+
+.aspect-ratio-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratio-pill {
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ratio-pill:hover {
+  border-color: var(--accent-purple);
+  color: var(--text-primary);
+}
+
+.ratio-pill.active {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+  color: #ffffff;
+}
+
+.image-style-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+}
+
+.close-image-mode-btn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.close-image-mode-btn:hover {
+  color: var(--text-primary);
+}
+
+/* AI Image Card in Message Bubble */
+.ai-image-card {
+  margin-top: 8px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-surface-elevated);
+  position: relative;
+  max-width: 512px;
+  box-shadow: var(--shadow-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.ai-image-card:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+}
+
+.ai-image-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: pointer;
+  transition: transform var(--transition-normal);
+}
+
+.ai-image-card img:hover {
+  transform: scale(1.015);
+}
+
+.image-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  gap: 8px;
+}
+
+.image-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.image-card-badge {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--accent-purple);
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.image-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Skeleton Loading Card for Image */
+.image-loading-card {
+  width: 320px;
+  height: 260px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: linear-gradient(110deg, var(--bg-surface-elevated) 8%, var(--bg-surface-hover) 18%, var(--bg-surface-elevated) 33%);
+  background-size: 200% 100%;
+  animation: shine 1.6s linear infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 20px;
+  text-align: center;
+}
+
+.image-loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(139, 92, 246, 0.2);
+  border-top-color: var(--accent-purple);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shine {
+  to { background-position-x: -200%; }
+}
+
+/* Lightbox Modal */
+.image-lightbox-modal .lightbox-dialog {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.lightbox-close-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.lightbox-close-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.lightbox-image-wrap {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--border-medium);
+}
+
+.lightbox-img {
+  max-width: 85vw;
+  max-height: 75vh;
+  object-fit: contain;
+  display: block;
+}
+
+.lightbox-footer {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+}
+
+.lightbox-prompt {
+  font-size: 13px;
+  color: #ffffff;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ==========================================================================
    D. CODE BLOCKS & MARKDOWN
    ========================================================================== */

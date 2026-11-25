@@ -414,6 +414,80 @@ class NexoApp {
 
     // Settings Save and Change Events
     this.bindSettingsFormEvents();
+
+    // Image Generation Mode & Lightbox Events
+    this.bindImageModeEvents();
+  }
+
+  /**
+   * Bind Image Generation UI Controls
+   */
+  bindImageModeEvents() {
+    const toggleBtn = document.getElementById('toggle-image-mode-btn');
+    const modeBar = document.getElementById('image-mode-bar');
+    const closeBtn = document.getElementById('close-image-mode-btn');
+    const ratioPills = document.querySelectorAll('.ratio-pill');
+    const styleSelect = document.getElementById('image-style-select');
+    const lightboxModal = document.getElementById('image-lightbox-modal');
+    const lightboxClose = document.getElementById('lightbox-close-btn');
+
+    const setImageMode = (active) => {
+      this.chat.isImageMode = active;
+      if (toggleBtn) {
+        toggleBtn.classList.toggle('active', active);
+        toggleBtn.title = active ? 'Exit Image Mode' : 'Create AI Image (Alt+I)';
+      }
+      if (modeBar) {
+        modeBar.style.display = active ? 'flex' : 'none';
+      }
+      if (this.ui.chatInput) {
+        this.ui.chatInput.placeholder = active
+          ? 'Describe the image you want to generate with AI...'
+          : 'Message NexoAI or type /image to generate artwork...';
+        this.ui.chatInput.focus();
+      }
+    };
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        setImageMode(!this.chat.isImageMode);
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        setImageMode(false);
+      });
+    }
+
+    ratioPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        ratioPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const ratio = pill.getAttribute('data-ratio') || '1:1';
+        this.chat.selectedAspectRatio = ratio;
+      });
+    });
+
+    if (styleSelect) {
+      styleSelect.addEventListener('change', () => {
+        this.chat.selectedImageStyle = styleSelect.value;
+      });
+    }
+
+    if (lightboxClose) {
+      lightboxClose.addEventListener('click', () => {
+        this.chat.closeLightbox();
+      });
+    }
+
+    if (lightboxModal) {
+      lightboxModal.addEventListener('click', (e) => {
+        if (e.target === lightboxModal) {
+          this.chat.closeLightbox();
+        }
+      });
+    }
   }
 
   /**
@@ -446,8 +520,21 @@ class NexoApp {
         return;
       }
 
+      // Alt + I -> Toggle Image Mode
+      if (e.altKey && (e.key === 'i' || e.key === 'I')) {
+        e.preventDefault();
+        const toggleBtn = document.getElementById('toggle-image-mode-btn');
+        if (toggleBtn) toggleBtn.click();
+        return;
+      }
+
       // Escape to close modals or stop generation
       if (e.key === 'Escape') {
+        const lightboxModal = document.getElementById('image-lightbox-modal');
+        if (lightboxModal?.classList.contains('active')) {
+          this.chat.closeLightbox();
+          return;
+        }
         if (this.ui.confirmModal?.classList.contains('active')) {
           this.ui.confirmModal.classList.remove('active');
           return;
@@ -460,7 +547,7 @@ class NexoApp {
           this.ui.closeShortcutsModal();
           return;
         }
-        if (this.chat.isStreaming) {
+        if (this.chat.isStreaming || this.chat.isGeneratingImage) {
           this.chat.stopGeneration();
           return;
         }
