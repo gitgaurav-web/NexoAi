@@ -1,0 +1,28 @@
+{
+  "name": "nexo-ai",
+  "version": "1.0.0",
+  "description": "NexoAI - Advanced AI Chatbot Web Application powered by Google Gemini",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/**/*.test.js"
+  },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "gemini",
+    "express",
+    "sse",
+    "streaming"
+  ],
+  "author": "NexoAI Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^3.6.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

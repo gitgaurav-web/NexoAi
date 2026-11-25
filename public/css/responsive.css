@@ -1,0 +1,233 @@
+/**
+ * NexoAI - Responsive Stylesheet
+ * Handles tablet and mobile layouts, slide-over drawer, and touch adaptations.
+ */
+
+/* Backdrop overlay for mobile drawer */
+.sidebar-mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 45;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+.sidebar-mobile-backdrop.active {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Tablet Layout (<= 1024px) */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 250px;
+    --input-max-width: 720px;
+  }
+
+  .messages-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .suggestions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+/* Mobile Layout (<= 768px) */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 280px;
+    --header-height: 54px;
+    --input-max-width: 100%;
+  }
+
+  /* Hamburger menu button appears */
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sidebar transforms into off-canvas drawer */
+  #sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--sidebar-width) !important;
+    height: 100%;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 50;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  #sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  /* Header adjustments */
+  .chat-header {
+    padding: 0 12px;
+  }
+
+  .current-chat-title-wrapper {
+    max-width: 160px;
+  }
+
+  .current-chat-title {
+    font-size: 14px;
+  }
+
+  .header-action-btn span {
+    display: none;
+  }
+  .header-action-btn {
+    padding: 8px;
+  }
+
+  /* Messages adjustments */
+  .messages-container {
+    padding: 16px 12px 130px 12px;
+  }
+
+  .message-row {
+    gap: 10px;
+  }
+
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .message-avatar.assistant-avatar img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .message-body-wrapper {
+    max-width: 90%;
+  }
+
+  .message-bubble {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  /* Always show message action icons on mobile */
+  .message-actions-bar {
+    opacity: 1;
+  }
+
+  /* Welcome Screen */
+  .welcome-screen {
+    padding: 24px 8px;
+  }
+
+  .welcome-title {
+    font-size: 24px;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .suggestions-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .suggestion-card {
+    padding: 12px;
+  }
+
+  /* Floating Input Bar on Mobile */
+  .input-container {
+    padding: 8px 12px 14px 12px;
+  }
+
+  .input-box-wrapper {
+    border-radius: 20px;
+    padding: 6px 10px 6px 14px;
+  }
+
+  .chat-textarea {
+    font-size: 14px;
+    padding: 4px 0;
+  }
+
+  .send-btn,
+  .stop-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .char-counter {
+    display: none;
+  }
+
+  .input-disclaimer {
+    font-size: 10.5px;
+    margin-top: 6px;
+  }
+
+  .scroll-bottom-btn {
+    bottom: 100px;
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Code Cards on Mobile */
+  .code-card pre {
+    font-size: 12.5px;
+    padding: 10px 12px;
+  }
+
+  /* Modals on Mobile */
+  .modal-dialog {
+    max-width: 100%;
+    margin: 10px;
+  }
+
+  .modal-content {
+    padding: 16px;
+  }
+
+  #toast-container {
+    left: 12px;
+    right: 12px;
+    top: 12px;
+  }
+
+  .toast {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+/* Very Small Mobile (< 400px) */
+@media (max-width: 400px) {
+  .current-chat-title-wrapper {
+    max-width: 120px;
+  }
+
+  .welcome-title {
+    font-size: 20px;
+  }
+
+  .message-body-wrapper {
+    max-width: 95%;
+  }
+}

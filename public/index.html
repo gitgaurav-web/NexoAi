@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NexoAI – Advanced AI Chatbot</title>
+  <meta name="description" content="NexoAI - Premium, responsive AI chatbot web application powered by Google Gemini API.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+
+  <!-- Core Stylesheets -->
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- App Main Layout Container -->
+  <div id="app-container">
+
+    <!-- Mobile Drawer Backdrop Overlay -->
+    <div id="sidebar-backdrop" class="sidebar-mobile-backdrop"></div>
+
+    <!-- ====================================================================
+         A. SIDEBAR
+         ==================================================================== -->
+    <aside id="sidebar">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <a href="#" class="brand-wrapper">
+          <img src="assets/logo.svg" alt="NexoAI Logo" class="brand-logo-img">
+          <span class="brand-text">NexoAI</span>
+          <span class="brand-badge">PRO</span>
+        </a>
+        <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" title="Toggle Sidebar (Ctrl+B)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Sidebar Actions (New Chat & Search) -->
+      <div class="sidebar-actions">
+        <button id="new-chat-btn" class="btn-new-chat" title="New Chat (Ctrl+K)">
+          <div class="btn-new-chat-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Chat</span>
+          </div>
+          <span class="kbd-badge">Ctrl K</span>
+        </button>
+
+        <div class="search-wrapper">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search conversations..." autocomplete="off">
+          <button id="search-clear-btn" class="search-clear-btn" title="Clear search">✕</button>
+        </div>
+      </div>
+
+      <!-- History Scroll List -->
+      <div id="history-container" class="sidebar-history-container">
+        <!-- Rendered dynamically by app.js (Pinned, Today, Yesterday, 7 Days, Older) -->
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div class="user-profile-row">
+          <div class="user-profile-info">
+            <div class="user-avatar-badge">
+              <span>N</span>
+              <span class="user-status-dot"></span>
+            </div>
+            <div class="user-name-wrapper">
+              <span class="user-name">NexoAI User</span>
+              <span class="user-role">Free Tier</span>
+            </div>
+          </div>
+          <div class="footer-btn-group">
+            <button id="sidebar-theme-btn" class="btn-icon-footer" title="Toggle Theme">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+            <button id="settings-btn" class="btn-icon-footer" title="Settings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         B. MAIN CHAT AREA
+         ==================================================================== -->
+    <main id="main-chat">
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="header-left">
+          <button id="mobile-menu-btn" class="mobile-menu-btn" title="Open Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div id="current-chat-title-wrapper" class="current-chat-title-wrapper" title="Click to rename chat">
+            <span id="current-chat-title" class="current-chat-title">NexoAI</span>
+            <svg class="title-edit-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button id="header-new-chat-btn" class="header-action-btn" title="New Chat (Ctrl+K)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Chat</span>
+          </button>
+          <button id="header-export-btn" class="header-action-btn" title="Export Current Chat">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export</span>
+          </button>
+          <button id="header-theme-btn" class="header-action-btn" title="Switch Theme">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+          <button id="shortcuts-help-btn" class="header-action-btn" title="Keyboard Shortcuts (Ctrl+/)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Scroll Area -->
+      <div id="messages-container" class="messages-container">
+        <!-- Welcome Screen (shown when conversation is empty) -->
+        <div id="welcome-screen" class="welcome-screen">
+          <div class="welcome-logo-halo">
+            <div class="welcome-halo-pulse"></div>
+            <img src="assets/logo.svg" alt="NexoAI" class="welcome-logo-img">
+          </div>
+          <h1 class="welcome-title">Hello! How can I help you today?</h1>
+          <p class="welcome-subtitle">Ask questions, brainstorm concepts, generate code, or draft content. Choose a suggestion or type below.</p>
+
+          <!-- 4 Suggestion Cards -->
+          <div class="suggestions-grid">
+            <div class="suggestion-card" data-prompt="Draft a polite and professional follow-up email after a job interview, highlighting my enthusiasm for the role.">
+              <div class="suggestion-card-header">
+                <span class="suggestion-icon">✍️</span>
+                <span>Write something</span>
+              </div>
+              <p class="suggestion-card-prompt">Draft a polite and professional follow-up email after a job interview.</p>
+            </div>
+
+            <div class="suggestion-card" data-prompt="Explain quantum computing in simple terms using an intuitive real-world analogy.">
+              <div class="suggestion-card-header">
+                <span class="suggestion-icon">💡</span>
+                <span>Explain a concept</span>
+              </div>
+              <p class="suggestion-card-prompt">Explain quantum computing in simple terms with an analogy.</p>
+            </div>
+
+            <div class="suggestion-card" data-prompt="Write a clean, reusable debounce function in modern JavaScript with practical usage examples and comments.">
+              <div class="suggestion-card-header">
+                <span class="suggestion-icon">💻</span>
+                <span>Generate code</span>
+              </div>
+              <p class="suggestion-card-prompt">Write a clean debounce function in modern JavaScript with examples.</p>
+            </div>
+
+            <div class="suggestion-card" data-prompt="Brainstorm 5 innovative SaaS business ideas that leverage modern generative AI for niche creators.">
+              <div class="suggestion-card-header">
+                <span class="suggestion-icon">🚀</span>
+                <span>Brainstorm ideas</span>
+              </div>
+              <p class="suggestion-card-prompt">Brainstorm 5 unique SaaS product ideas powered by modern AI.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Messages Wrapper -->
+        <div id="messages-inner" class="messages-inner-wrapper" role="log" aria-live="polite" aria-label="Conversation messages">
+          <!-- Rendered dynamically by chat.js -->
+        </div>
+
+        <!-- Floating Scroll-To-Bottom Button -->
+        <button id="scroll-bottom-btn" class="scroll-bottom-btn" title="Scroll to bottom" aria-label="Scroll to bottom">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ====================================================================
+           C. FLOATING INPUT BAR
+           ==================================================================== -->
+      <div class="input-container">
+        <div class="input-box-wrapper">
+          <div class="input-row">
+            <textarea
+              id="chat-input"
+              class="chat-textarea"
+              placeholder="Ask NexoAI anything... (Shift+Enter for newline)"
+              aria-label="Ask NexoAI a question"
+              rows="1"
+              autocomplete="off"
+            ></textarea>
+            <div class="input-controls">
+              <span id="char-counter" class="char-counter" style="display: none;">0</span>
+              <!-- Send Button -->
+              <button id="send-btn" class="send-btn" title="Send message (Enter)" aria-label="Send message" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+              <!-- Stop Generation Button (swapped during stream) -->
+              <button id="stop-btn" class="stop-btn" title="Stop generating" aria-label="Stop generating response" style="display: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="input-disclaimer">NexoAI can make mistakes. Consider verifying important information.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====================================================================
+       E. MODALS & DIALOGS
+       ==================================================================== -->
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2 id="settings-modal-title" class="modal-title">Settings</h2>
+        <button id="settings-close-btn" class="modal-close-btn" title="Close" aria-label="Close Settings">✕</button>
+      </div>
+
+      <div class="modal-content">
+        <!-- Appearance / Themes -->
+        <div class="form-group">
+          <label class="form-label">Theme Appearance</label>
+          <div class="theme-options-grid">
+            <div class="theme-option-card active" data-theme="dark">
+              <div class="theme-preview-box dark"></div>
+              <span style="font-size: 13px;">Dark</span>
+            </div>
+            <div class="theme-option-card" data-theme="light">
+              <div class="theme-preview-box light"></div>
+              <span style="font-size: 13px;">Light</span>
+            </div>
+            <div class="theme-option-card" data-theme="system">
+              <div class="theme-preview-box system"></div>
+              <span style="font-size: 13px;">System</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Key Status & Custom Key -->
+        <div class="form-group">
+          <label class="form-label">Google Gemini API Key</label>
+          <div id="api-key-status-text" class="form-hint" style="margin-bottom: 6px;">
+            Checking server key status...
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="setting-custom-key" class="form-input" placeholder="Enter session key (optional)" aria-label="Google Gemini API Key">
+            <button id="save-key-btn" class="btn btn-secondary" style="flex-shrink: 0;">Save</button>
+            <button id="clear-key-btn" class="btn btn-secondary" style="flex-shrink: 0;" title="Clear session key">Clear</button>
+          </div>
+          <span class="form-hint" style="font-size: 11.5px; margin-top: 4px; line-height: 1.4;">
+            🔒 <strong>Security:</strong> Server <code>.env</code> is the most secure method. Keys entered in this modal are kept in <strong>sessionStorage only</strong> (in-memory per tab) and are never written to permanent disk storage.
+          </span>
+        </div>
+
+        <!-- Model Selection -->
+        <div class="form-group">
+          <label class="form-label" for="setting-model">Gemini Model</label>
+          <select id="setting-model" class="form-select">
+            <option value="gemini-2.5-flash">gemini-2.5-flash (Fast, Recommended)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash (General Purpose)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash (Standard)</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro (Deep Reasoning)</option>
+          </select>
+        </div>
+
+        <!-- Context Limit -->
+        <div class="form-group">
+          <label class="form-label" for="setting-context-limit">Conversation Memory Window</label>
+          <select id="setting-context-limit" class="form-select">
+            <option value="10">Last 10 messages</option>
+            <option value="20" selected>Last 20 messages (Balanced)</option>
+            <option value="40">Last 40 messages</option>
+            <option value="0">Full conversation history</option>
+          </select>
+          <span class="form-hint">Controls how many recent messages are sent to the AI to balance context and latency.</span>
+        </div>
+
+        <!-- Custom System Prompt -->
+        <div class="form-group">
+          <label class="form-label" for="setting-system-prompt">Custom System Instructions</label>
+          <textarea id="setting-system-prompt" class="form-textarea" rows="3" placeholder="e.g. Always respond concisely and emphasize code examples..."></textarea>
+          <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+            <button id="save-prompt-btn" class="btn btn-secondary">Save Instructions</button>
+          </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="form-group">
+          <label class="form-label">Data Management</label>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button id="export-all-data-btn" class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Export All Chats (JSON)</span>
+            </button>
+
+            <label class="btn btn-secondary" style="cursor: pointer;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Import Chats (JSON)</span>
+              <input type="file" id="import-data-file" accept=".json" style="display: none;">
+            </label>
+
+            <button id="clear-all-btn" class="btn btn-danger">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Clear All History</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Dialog Modal -->
+  <div id="confirm-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-dialog" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2 id="confirm-title" class="modal-title">Confirm Action</h2>
+      </div>
+      <div class="modal-content" style="padding-bottom: 8px;">
+        <p id="confirm-message" style="font-size: 14px; color: var(--text-secondary);"></p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirm-cancel-btn" class="btn btn-secondary">Cancel</button>
+        <button id="confirm-ok-btn" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="shortcuts-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-title">
+    <div class="modal-dialog" style="max-width: 460px;">
+      <div class="modal-header">
+        <h2 id="shortcuts-modal-title" class="modal-title">Keyboard Shortcuts</h2>
+        <button id="shortcuts-close-btn" class="modal-close-btn" title="Close" aria-label="Close Shortcuts Dialog">✕</button>
+      </div>
+      <div class="modal-content">
+        <table class="shortcuts-table">
+          <tbody>
+            <tr>
+              <td><span class="kbd-badge">Enter</span></td>
+              <td>Send message</td>
+            </tr>
+            <tr>
+              <td><span class="kbd-badge">Shift + Enter</span></td>
+              <td>New line in message box</td>
+            </tr>
+            <tr>
+              <td><span class="kbd-badge">Ctrl + K</span> / <span class="kbd-badge">Cmd + K</span></td>
+              <td>Start a new chat</td>
+            </tr>
+            <tr>
+              <td><span class="kbd-badge">Ctrl + B</span> / <span class="kbd-badge">Cmd + B</span></td>
+              <td>Toggle sidebar collapse/expand</td>
+            </tr>
+            <tr>
+              <td><span class="kbd-badge">Ctrl + /</span> / <span class="kbd-badge">Cmd + /</span></td>
+              <td>Open keyboard shortcuts guide</td>
+            </tr>
+            <tr>
+              <td><span class="kbd-badge">Escape</span></td>
+              <td>Close open modal or stop generation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Bootstrap -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

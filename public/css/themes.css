@@ -1,0 +1,154 @@
+/**
+ * NexoAI - Color System & Themes
+ * Supports Dark, Light, and System modes.
+ */
+
+:root {
+  /* Default font stack */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Sizing & Transitions */
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 60px;
+  --input-max-width: 800px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Brand Accents */
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #ec4899;
+  --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+  --accent-glow: rgba(139, 92, 246, 0.35);
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+}
+
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"] {
+  --bg-app: #0e1117;
+  --bg-sidebar: #131720;
+  --bg-sidebar-hover: #1c2230;
+  --bg-sidebar-active: #222a3b;
+  --bg-surface: #161b26;
+  --bg-surface-elevated: #1e2433;
+  --bg-surface-hover: #252c3e;
+  --bg-input: #1a202c;
+  --bg-input-focus: #1f2737;
+  --bg-user-bubble: #252e42;
+  --bg-assistant-bubble: transparent;
+  --bg-modal-backdrop: rgba(7, 9, 13, 0.75);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.14);
+  --border-focus: #8b5cf6;
+
+  --code-bg: #0b0e14;
+  --code-header-bg: #141923;
+  --code-border: rgba(255, 255, 255, 0.1);
+  --code-text: #e2e8f0;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
+  --shadow-floating: 0 12px 30px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-app: #f8fafc;
+  --bg-sidebar: #f1f5f9;
+  --bg-sidebar-hover: #e2e8f0;
+  --bg-sidebar-active: #cbd5e1;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --bg-input: #ffffff;
+  --bg-input-focus: #ffffff;
+  --bg-user-bubble: #e2e8f0;
+  --bg-assistant-bubble: transparent;
+  --bg-modal-backdrop: rgba(15, 23, 42, 0.45);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #f8fafc;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.15);
+  --border-focus: #3b82f6;
+
+  --code-bg: #1e293b;
+  --code-header-bg: #0f172a;
+  --code-border: rgba(0, 0, 0, 0.15);
+  --code-text: #f8fafc;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-floating: 0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.08);
+
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+}
+
+/* System Default Theme Handler */
+@media (prefers-color-scheme: light) {
+  [data-theme="system"] {
+    --bg-app: #f8fafc;
+    --bg-sidebar: #f1f5f9;
+    --bg-sidebar-hover: #e2e8f0;
+    --bg-sidebar-active: #cbd5e1;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #ffffff;
+    --bg-surface-hover: #f1f5f9;
+    --bg-input: #ffffff;
+    --bg-input-focus: #ffffff;
+    --bg-user-bubble: #e2e8f0;
+    --bg-assistant-bubble: transparent;
+    --bg-modal-backdrop: rgba(15, 23, 42, 0.45);
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --text-inverse: #f8fafc;
+
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-medium: rgba(0, 0, 0, 0.15);
+    --border-focus: #3b82f6;
+
+    --code-bg: #1e293b;
+    --code-header-bg: #0f172a;
+    --code-border: rgba(0, 0, 0, 0.15);
+    --code-text: #f8fafc;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-floating: 0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.08);
+
+    --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  }
+}
